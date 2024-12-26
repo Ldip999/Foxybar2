@@ -42,6 +42,7 @@
 	if(game_status == MINESWEEPER_GAME_PLAYING)
 		data["Rows"] = rows-1
 		data["Columns"] = columns-1
+	get_spritesheet_icon_key()
 	return data
 
 /obj/machinery/computer/arcade/minesweeper/ui_act(action, params)
@@ -56,6 +57,11 @@
 		if("ToggleFlag")
 			ToggleFlag()
 	return TRUE
+
+/obj/machinery/computer/arcade/minesweeper/ui_assets(mob/user)
+	return list(
+		get_asset_datum(/datum/asset/spritesheet/simple/minesweeper)
+	)
 	
 
 
@@ -83,10 +89,7 @@
 /obj/machinery/computer/arcade/minesweeper/proc/reset_spark_spam()
 	spark_spam = FALSE
 
-/obj/machinery/computer/arcade/minesweeper/ui_assets(mob/user)
-	return list(
-		get_asset_datum(/datum/asset/spritesheet/simple/minesweeper)
-	)
+
 
 /obj/machinery/computer/arcade/minesweeper/proc/SetDifficulty(var/difficulty)
 	switch(difficulty)
@@ -399,3 +402,4 @@
 #undef MINESWEEPER_GAME_PLAYING
 #undef MINESWEEPER_GAME_LOST
 #undef MINESWEEPER_GAME_WON
+
