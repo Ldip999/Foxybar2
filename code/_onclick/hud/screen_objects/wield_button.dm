@@ -2,7 +2,7 @@
 
 /atom/movable/screen/wield
 	name = "toggle wield"
-	icon = 'icons/fallout/UI/buttons_fallout2.dmi'
+	icon = 'icons/mob/screen_gen.dmi'
 	icon_state = "wield"
 	layer = HUD_LAYER - 0.1
 
