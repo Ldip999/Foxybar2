@@ -2573,6 +2573,15 @@
 	icon_state = "horizontalbottomborderbottom0"
 	},
 /area/f13/wasteland/city/newboston/outdoors)
+"oCI" = (
+/obj/effect/turf_decal/siding/wood{
+	color = "#3B2B1A"
+	},
+/obj/structure/tabletop,
+/turf/open/floor/wood_fancy{
+	color = "#779999"
+	},
+/area/f13/fb/bar)
 "oLR" = (
 /obj/item/kirbyplants/random,
 /obj/machinery/light/small{
@@ -10494,7 +10503,7 @@ wxN
 wxN
 wxN
 wxN
-lel
+oCI
 maZ
 maZ
 maZ
