@@ -3,7 +3,9 @@
 #define MINESWEEPER_GAME_LOST		2
 #define MINESWEEPER_GAME_WON		3
 #define MINESWEEPERIMG(what) {"<img style='border:0' <span class="minesweeper16x16 [#what]"></span>"} //Basically bypassing asset.icon_tag()
-
+//World's worst minesweeper implemenatation, ported
+//Fucking despise every part of this
+//Took me 2 (two) weeks to get it working
 /obj/machinery/computer/arcade/minesweeper
 	name = "Minesweeper"
 	desc = "An arcade machine that generates grids. It seems that the machine sparks and screeches when a grid is generated, as if it cannot cope with the intensity of generating the grid."
@@ -26,6 +28,7 @@
 	var/columns = 1
 	var/table[31][51]	//Make the board boys, 30x50 board
 	var/spark_spam = FALSE
+	var/list/assetlist = list()
 
 
 /obj/machinery/computer/arcade/minesweeper/ui_interact(mob/user, datum/tgui/ui)
@@ -38,35 +41,109 @@
 /obj/machinery/computer/arcade/minesweeper/ui_data(mob/user)
 	. = ..()
 	var/list/data = list()
+	
 	data["game_status"] = game_status;
 	if(game_status == MINESWEEPER_GAME_PLAYING)
+		var/mines[31][51]
+		for(var/rowsvar = 1; rowsvar < src.rows; rowsvar++)
+			mines[rowsvar] += list()
+			for(var/columnsvar = 1; columnsvar < src.columns; columnsvar++)
+				if(game_status == MINESWEEPER_GAME_PLAYING)
+					switch(src.table[rowsvar][columnsvar])
+						if(-10 to -1)
+							mines[rowsvar][columnsvar] = "flag"
+						if(0 to 9)
+							mines[rowsvar][columnsvar] = "hidden"
+						if(10)
+							mines[rowsvar][columnsvar] = "minehit"
+						if(11)
+							mines[rowsvar][columnsvar] = "empty"
+						if(12)
+							mines[rowsvar][columnsvar] = "1"
+						if(13)
+							mines[rowsvar][columnsvar] = "2"
+						if(14)
+							mines[rowsvar][columnsvar] = "3"
+						if(15)
+							mines[rowsvar][columnsvar] = "4"
+						if(16)
+							mines[rowsvar][columnsvar] = "5"
+						if(17)
+							mines[rowsvar][columnsvar] = "6"
+						if(18)
+							mines[rowsvar][columnsvar] = "7"
+						if(19)
+							mines[rowsvar][columnsvar] = "8"
+		data["Minestates"] = mines
 		data["Rows"] = rows-1
 		data["Columns"] = columns-1
-	get_spritesheet_icon_key()
+		data["FlagMode"] = src.flagging
+
 	return data
+
 
 /obj/machinery/computer/arcade/minesweeper/ui_act(action, params)
 	. = ..()
 	switch(action)
 		if("SetDifficulty")
 			SetDifficulty(params["Difficulty"])
-			. = TRUE
 		if("MainMenu")
 			game_status = MINESWEEPER_GAME_MAIN_MENU
-			. = TRUE
 		if("ToggleFlag")
 			ToggleFlag()
+		if("ClickMine")
+			ClickMine(params["RowID"],params["ColumnID"])
 	return TRUE
-
-/obj/machinery/computer/arcade/minesweeper/ui_assets(mob/user)
-	return list(
-		get_asset_datum(/datum/asset/spritesheet/simple/minesweeper)
-	)
-	
 
 
 /obj/machinery/computer/arcade/minesweeper/attack_hand(mob/user)
 	ui_interact(user)
+
+/obj/machinery/computer/arcade/minesweeper/proc/ClickMine(var/y,var/x)
+	if(game_status == MINESWEEPER_GAME_PLAYING)
+		if(!flagging)
+			if(table[y][x] < 10 && table[y][x] >= 0)
+				table[y][x] += 10
+				if(table[y][x] !=10)
+					playsound(loc, 'sound/arcade/minesweeper_boardpress.ogg', 50, FALSE, extrarange = -3)
+				else
+					if(game_status != MINESWEEPER_GAME_LOST && game_status != MINESWEEPER_GAME_WON)
+						game_status = MINESWEEPER_GAME_LOST
+						if(mine_sound)
+							switch(rand(1,3))	//Play every time a mine is hit
+								if(1)
+									playsound(loc, 'sound/arcade/minesweeper_explosion1.ogg', 50, FALSE, extrarange = -3)
+								if(2)
+									playsound(loc, 'sound/arcade/minesweeper_explosion2.ogg', 50, FALSE, extrarange = -3)
+								if(3)
+									playsound(loc, 'sound/arcade/minesweeper_explosion3.ogg', 50, FALSE, extrarange = -3)
+							mine_sound = FALSE
+		else
+			playsound(loc, 'sound/arcade/minesweeper_boardpress.ogg', 50, FALSE, extrarange = -3)
+			if(table[y][x] >= 0)	//Check that it's not already flagged
+				table[y][x] -= 10
+				if(table[y][x] == -10)
+					src.safe_squares_revealed += 1
+			else if(table[y][x] < 0)	//If flagged, remove the flag
+				table[y][x] += 10
+				if(table[y][x] == 0)
+					src.safe_squares_revealed -= 1
+	
+	for(var/y1=1;y1<rows;y1++)
+		for(var/x1=1;x1<columns;x1++)
+			work_squares(y1, x1)
+			CHECK_TICK
+	if(src.safe_squares_revealed >= src.win_condition && src.game_status == MINESWEEPER_GAME_PLAYING)
+		src.game_status = MINESWEEPER_GAME_WON
+	if(src.game_status == MINESWEEPER_GAME_WON)
+		var/dope_prizes = (src.area >= 480) ? 6 : (src.area >= 256) ? 4 : 2
+		for(var/i = 0; i < dope_prizes; i++)
+			prizevend(usr)
+		
+		
+	
+	
+
 
 /obj/machinery/computer/arcade/minesweeper/interact(mob/user)
 	/*
@@ -94,43 +171,46 @@
 /obj/machinery/computer/arcade/minesweeper/proc/SetDifficulty(var/difficulty)
 	switch(difficulty)
 		if(1)
-			flag_text = "OFF"
-			game_status = MINESWEEPER_GAME_PLAYING
-			difficulty = "Easy"
-			rows = 10	//9x9 board
-			columns = 10
-			mine_limit = 10
-			. = TRUE
+			src.flag_text = "OFF"
+			src.game_status = MINESWEEPER_GAME_PLAYING
+			src.difficulty = "Easy"
+			src.rows = 10	//9x9 board
+			src.columns = 10
+			src.mine_limit = 10
 		if(2)
-			flag_text = "OFF"
-			game_status = MINESWEEPER_GAME_PLAYING
+			src.flag_text = "OFF"
+			src.game_status = MINESWEEPER_GAME_PLAYING
 			//reset_board = TRUE
-			difficulty = "Intermediate"
-			rows = 17	//16x16 board
-			columns = 17
-			mine_limit = 40
-			. = TRUE
+			src.difficulty = "Intermediate"
+			src.rows = 17	//16x16 board
+			src.columns = 17
+			src.mine_limit = 40
 		if(3)
-			flag_text = "OFF"
-			game_status = MINESWEEPER_GAME_PLAYING
+			src.flag_text = "OFF"
+			src.game_status = MINESWEEPER_GAME_PLAYING
 			//reset_board = TRUE
-			difficulty = "Hard"
-			rows = 17	//16x30 board
-			columns = 31
-			mine_limit = 99
-			. = TRUE
-	area = (rows-1)*(columns-1)
+			src.difficulty = "Hard"
+			src.rows = 17	//16x30 board
+			src.columns = 31
+			src.mine_limit = 99
+	ResetMines()
+	for(var/y1=1;y1<src.rows;y1++)
+		for(var/x1=1;x1<src.columns;x1++)
+			work_squares(y1, x1)
+	src.area = (src.rows-1)*(src.columns-1)
+	
+	src.safe_squares_revealed = 0
+	src.win_condition = src.mine_placed
+
 
 /obj/machinery/computer/arcade/minesweeper/proc/ToggleFlag()
-	if(!flagging)
-		flagging = TRUE
-		flag_text = "ON"
+	if(!src.flagging)
+		src.flagging = TRUE
 	else
-		flagging = FALSE
-		flag_text = "OFF"
+		src.flagging = FALSE
 
 /obj/machinery/computer/arcade/minesweeper/proc/ResetMines()
-	mine_placed = 0
+	src.mine_placed = 0
 	make_mines(TRUE)
 
 /obj/machinery/computer/arcade/minesweeper/Topic(href, href_list)
@@ -252,11 +332,9 @@
 								table[y1][x1] += 10
 				if(table[y1][x1] > 10 && !reset_board)
 					safe_squares_revealed += 1
-				var/y2 = y1
-				var/x2 = x1
-				work_squares(y2, x2)	//Work squares while in this loop so there's less load
-				reset_board = FALSE
-				CHECK_TICK
+				//var/y2 = y1
+				//var/x2 = x1
+			
 
 		web += "<table>"	//Start setting up the html table
 		web += "<tbody>"
@@ -361,14 +439,14 @@
 	return TRUE
 
 /obj/machinery/computer/arcade/minesweeper/proc/make_mines(var/reset_everything)
-	if(mine_placed < mine_limit)
-		for(var/y1=1;y1<rows;y1++)	//Board resetting and mine building
-			for(var/x1=1;x1<columns;x1++)
-				if(prob(area/mine_limit) && mine_placed < mine_limit && table[y1][x1] != 0)	//Unlikely for this to happen but this has eaten mines before
-					table[y1][x1] = 0
-					mine_placed += 1
+	if(src.mine_placed < src.mine_limit)
+		for(var/y1=1;y1<src.rows;y1++)	//Board resetting and mine building
+			for(var/x1=1;x1<src.columns;x1++)
+				if(prob(src.mine_limit) && src.mine_placed < src.mine_limit && src.table[y1][x1] != 0)	//Unlikely for this to happen but this has eaten mines before
+					src.table[y1][x1] = 0
+					src.mine_placed += 1
 				else if(reset_everything)
-					table[y1][x1] = 1
+					src.table[y1][x1] = 1
 		reset_everything = FALSE
 		make_mines()	//In case the first pass doesn't generate enough mines
 
