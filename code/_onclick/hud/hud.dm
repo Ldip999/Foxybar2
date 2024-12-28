@@ -71,6 +71,7 @@ GLOBAL_LIST_INIT(available_ui_styles, list(
 	var/atom/movable/screen/newbie_hud_button
 	var/atom/movable/screen/chardir_hud_button
 	var/atom/movable/screen/pvp_focus_toggle/pvp_focus_toggle
+	var/atom/movable/screen/who
 	var/atom/movable/screen/flirt_hud_button
 	var/atom/movable/screen/merp_button
 	var/atom/movable/screen/erp_button
@@ -78,6 +79,14 @@ GLOBAL_LIST_INIT(available_ui_styles, list(
 	var/atom/movable/screen/touch_hud_button
 	var/atom/movable/screen/lick_hud_button
 	var/atom/movable/screen/kiss_hud_button
+	var/atom/movable/screen/roll_hud_button
+	var/atom/movable/screen/bite_hud_button
+	var/atom/movable/screen/claw_hud_button
+	var/atom/movable/screen/tail_hud_button
+	var/atom/movable/screen/cuphand_hud_button
+	var/atom/movable/screen/tend_hud_button
+	var/atom/movable/screen/butt_hud_button
+
 
 
 	// subtypes can override this to force a specific UI style
@@ -140,12 +149,14 @@ GLOBAL_LIST_INIT(available_ui_styles, list(
 	chardir_hud_button = null
 	pvp_focus_toggle = null
 	flirt_hud_button = null
+	who = null
 	merp_button = null
 	erp_button = null
 	vore_button = null
 	touch_hud_button = null
 	lick_hud_button = null
 	kiss_hud_button = null
+	roll_hud_button = null
 
 	QDEL_LIST_ASSOC_VAL(plane_masters)
 	QDEL_LIST(screenoverlays)

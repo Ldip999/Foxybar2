@@ -1051,3 +1051,24 @@
 	nutriment_factor = 4 * REAGENTS_METABOLISM
 	taste_description = "fluffy sweet cream"
 	canbrew = TRUE
+
+/datum/reagent/consumable/strawberryjam
+	name = "Strawberry Jam"
+	description = "Very heavy and very sweet strawberry jam"
+	nutriment_factor = 60 * REAGENTS_METABOLISM
+	taste_description = "very heavy and dense strawberry"
+	color = "#bd0a08"
+
+/datum/reagent/consumable/raspberryjam
+	name = "Raspberry Jam"
+	description = "Some very tasty sweet raspberry jam"
+	nutriment_factor = 10 * REAGENTS_METABOLISM
+	taste_description = "calming raspberry"
+	color = "#630807"
+
+/datum/reagent/consumable/lemonjam
+	name = "Lemon Jam"
+	description = "Some very tangy lemon jam"
+	nutriment_factor = 10 * REAGENTS_METABOLISM
+	taste_description = "very tangy lemon"
+	color = "#f5fc19"
