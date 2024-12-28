@@ -99,7 +99,7 @@
 /obj/machinery/computer/arcade/minesweeper/attack_hand(mob/user)
 	ui_interact(user)
 
-/obj/machinery/computer/arcade/minesweeper/proc/ClickMine(var/y,var/x)
+/obj/machinery/computer/arcade/minesweeper/proc/ClickMine(y,x)
 	if(game_status == MINESWEEPER_GAME_PLAYING)
 		if(!flagging)
 			if(table[y][x] < 10 && table[y][x] >= 0)
@@ -168,7 +168,7 @@
 
 
 
-/obj/machinery/computer/arcade/minesweeper/proc/SetDifficulty(var/difficulty)
+/obj/machinery/computer/arcade/minesweeper/proc/SetDifficulty(difficulty)
 	switch(difficulty)
 		if(1)
 			src.flag_text = "OFF"
@@ -438,7 +438,7 @@
 	mine_limit = clamp(new_mine_limit, lower_limit, upper_limit)
 	return TRUE
 
-/obj/machinery/computer/arcade/minesweeper/proc/make_mines(var/reset_everything)
+/obj/machinery/computer/arcade/minesweeper/proc/make_mines(reset_everything)
 	if(src.mine_placed < src.mine_limit)
 		for(var/y1=1;y1<src.rows;y1++)	//Board resetting and mine building
 			for(var/x1=1;x1<src.columns;x1++)
@@ -450,7 +450,7 @@
 		reset_everything = FALSE
 		make_mines()	//In case the first pass doesn't generate enough mines
 
-/obj/machinery/computer/arcade/minesweeper/proc/work_squares(var/y2, var/x2, var/y3, var/x3)
+/obj/machinery/computer/arcade/minesweeper/proc/work_squares(y2, x2, y3, x3)
 	if(y3 > 0 && x3 > 0)
 		y2 = y3
 		x2 = x3
