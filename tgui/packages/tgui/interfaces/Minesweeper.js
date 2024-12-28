@@ -196,9 +196,6 @@ const Game = (props, context) => {
         <Button onClick={() => act("MainMenu", {})}>Back to main menu</Button>
       </Box>
       <Box>
-        Now we are gaming!
-      </Box>
-      <Box>
         <Table width={tablewidth + "px"} style={{ "margin-left": "auto", "margin-right": "auto" }} >
           {tablecontents}
         </Table>
